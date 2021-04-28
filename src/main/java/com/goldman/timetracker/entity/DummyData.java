@@ -13,8 +13,6 @@ public class DummyData {
 	@GeneratedValue(strategy= GenerationType.AUTO)
 	private Integer dummyDataSk;
 	private String description;
-	public DummyData() {
-	}
 	public Integer getDummyDataSk() {
 		return dummyDataSk;
 	}
