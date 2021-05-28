@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.TextStyle;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,13 +39,15 @@ public class TimeEntryService {
 		BigDecimal hours;
 		Boolean billable;
 		Integer lineSk = lineEntry.getLineSk();
+		BatchEntry batchEntry = null;
 		if (linesDayOfWeek != null) {
-			BatchEntry batchEntry = batchService.findFirstByOrderByBatchDateDesc();
+			batchEntry = batchService.findFirstByOrderByBatchDateDesc();
 			timeEntryDate = getDayFollowing(batchEntry.getBatchDate(), linesDayOfWeek);
 			billable = false;
 			activityDescription = linesDayOfWeek;
 			hours = getHours(line.substring(linesDayOfWeek.length()).trim());
 		} else {
+			batchEntry = batchService.findFirstByOrderByBatchDateDesc();
 			TimeEntry mostRecentTimeEntry = timeEntryRepository.findFirstByOrderByTimeEntryDateDesc();
 			if (mostRecentTimeEntry != null) {
 				timeEntryDate = mostRecentTimeEntry.getTimeEntryDate();
@@ -57,7 +60,7 @@ public class TimeEntryService {
 		}
 		TimeEntry timeEntry = timeEntryRepository.findByTimeEntryDateAndActivityDescriptionAndHoursAndBillable(timeEntryDate, activityDescription, hours, billable);
 		if (timeEntry == null) {
-			timeEntry = createTimeEntry(timeEntryDate, activityDescription, hours, billable, lineSk);
+			timeEntry = createTimeEntry(timeEntryDate, activityDescription, hours, billable, lineSk, batchEntry.getBatchSk());
 			timeEntry = timeEntryRepository.save(timeEntry);
 		}
 		return timeEntry;
@@ -85,13 +88,14 @@ public class TimeEntryService {
 	}
 
 	private TimeEntry createTimeEntry(Date timeEntryDate, String activityDescription, BigDecimal hours,
-			Boolean billable, Integer lineSk) {
+			Boolean billable, Integer lineSk, Integer batchEntrySk) {
 		TimeEntry timeEntry = new TimeEntry();
 		timeEntry.setTimeEntryDate(timeEntryDate);
 		timeEntry.setActivityDescription(activityDescription);
 		timeEntry.setHours(hours);
 		timeEntry.setBillable(billable);
 		timeEntry.setLineSk(lineSk);
+		timeEntry.setBatchEntrySk(batchEntrySk);
 		return timeEntry;
 	}
 
@@ -136,5 +140,9 @@ public class TimeEntryService {
 			retVal = retVal + 12;
 		}
 		return retVal;
+	}
+
+	public List<TimeEntry> findByTimeEntryDateGreaterThanEqual(Date fromDate) {
+		return timeEntryRepository.findByTimeEntryDateGreaterThanEqual(fromDate);
 	}
 }

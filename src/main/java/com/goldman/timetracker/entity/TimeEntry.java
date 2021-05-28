@@ -20,6 +20,7 @@ public class TimeEntry {
 	private BigDecimal hours;
 	private Boolean billable;
 	private Integer lineSk;
+	private Integer batchEntrySk;
 	public Integer getTimeEntrySk() {
 		return timeEntrySk;
 	}
@@ -52,5 +53,11 @@ public class TimeEntry {
 	}
 	public void setLineSk(Integer lineSk) {
 		this.lineSk = lineSk;
+	}
+	public Integer getBatchEntrySk() {
+		return batchEntrySk;
+	}
+	public void setBatchEntrySk(Integer batchEntrySk) {
+		this.batchEntrySk = batchEntrySk;
 	}
 }
