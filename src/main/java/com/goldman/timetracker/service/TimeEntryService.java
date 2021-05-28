@@ -46,13 +46,21 @@ public class TimeEntryService {
 			hours = getHours(line.substring(linesDayOfWeek.length()).trim());
 		} else {
 			TimeEntry mostRecentTimeEntry = timeEntryRepository.findFirstByOrderByTimeEntryDateDesc();
-			timeEntryDate = mostRecentTimeEntry.getTimeEntryDate();
+			if (mostRecentTimeEntry != null) {
+				timeEntryDate = mostRecentTimeEntry.getTimeEntryDate();
+			} else {
+				timeEntryDate = new Date();
+			}
 			billable = isBillable(line);
 			activityDescription = getActivityDescription(line);
 			hours = getHours(line.trim().substring(activityDescription.length()));
 		}
-		TimeEntry timeEntry = createTimeEntry(timeEntryDate, activityDescription, hours, billable, lineSk);
-		return timeEntryRepository.save(timeEntry);
+		TimeEntry timeEntry = timeEntryRepository.findByTimeEntryDateAndActivityDescriptionAndHoursAndBillable(timeEntryDate, activityDescription, hours, billable);
+		if (timeEntry == null) {
+			timeEntry = createTimeEntry(timeEntryDate, activityDescription, hours, billable, lineSk);
+			timeEntry = timeEntryRepository.save(timeEntry);
+		}
+		return timeEntry;
 	}
 
 	String getActivityDescription(String line) {
