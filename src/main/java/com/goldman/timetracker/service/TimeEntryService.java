@@ -68,8 +68,11 @@ public class TimeEntryService {
 
 	String getActivityDescription(String line) {
 		String trimmedLine = line.trim();
-		String activityDescription = trimmedLine.substring(0, trimmedLine.indexOf(' '));
-		return activityDescription;
+		try {
+			return trimmedLine.substring(0, trimmedLine.indexOf(' '));
+		} catch (Exception e) {
+			throw new RuntimeException("exception processing " + line, e);
+		}
 	}
 
 	private Boolean isBillable(String line) {
